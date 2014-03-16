@@ -96,6 +96,23 @@ class ImageSorcery
     (@filename_changed)
   end
 
+  # Use convert's histogram method to determine background color of image
+  # Has to be a separate function because of: complexity of arguments, output manipulation
+  def background 
+	tokens = ["convert"]
+	tokens << " '#{@file}' "
+	tokens << '-colors 16 '
+	tokens << '-format "%c" histogram:info:'
+	
+	tokens = convert_to_command(tokens)
+	output, success = run(tokens)
+	# Parse histogram output for most frequent color
+	result = output.split("\n").sort{|a,b| a.split(":").first.to_i <=> b.split(":").first.to_i}.last
+
+	# Return hex representation
+	return result.scan(/#[0-9A-F]+/).first
+  end
+
   private
 
   # Replaces the old file (with the old file format) with the newly generated one.

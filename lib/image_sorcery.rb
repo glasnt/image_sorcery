@@ -1,5 +1,5 @@
 require 'gm_support'
-
+require 'color'
 class ImageSorcery
   attr_reader :file
 
@@ -103,14 +103,29 @@ class ImageSorcery
 	tokens << " '#{@file}' "
 	tokens << '-colors 16 '
 	tokens << '-format "%c" histogram:info:'
-	
 	tokens = convert_to_command(tokens)
 	output, success = run(tokens)
+
+	return false if output.empty?
 	# Parse histogram output for most frequent color
 	result = output.split("\n").sort{|a,b| a.split(":").first.to_i <=> b.split(":").first.to_i}.last
 
 	# Return hex representation
-	return result.scan(/#[0-9A-F]+/).first
+	hex = result.scan(/#[0-9A-F]+/).first
+	return Color::RGB.by_hex(hex).html
+  end
+
+  # Get the color of the top left most pixel as minute samplespace representationi
+  # of the background color of an image
+  def base_color
+	tokens = ["convert"]
+	tokens << " '#{@file}' "
+	tokens << " -format '%[pixel:p{0,0}]' info:- "
+	tokens = convert_to_command(tokens)
+	output, success = run(tokens)
+	return false if output.empty?
+	r,g,b = output.scan(/[0-9]+/).map{|y| y.to_i}
+	return Color::RGB.new(r, g, b).html
   end
 
   private

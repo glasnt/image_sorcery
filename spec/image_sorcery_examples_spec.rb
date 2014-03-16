@@ -128,7 +128,13 @@ shared_examples_for ImageSorcery do |new_instance_method|
   describe "extract background color" do
     it "returns a hex value for the background" do
     	flag = ImageSorcery.send(new_instance_method, "./spec/fixtures/flag.png") 
-	flag.background.should eq "#002776" #Background Blue.
+	flag.background.should eq "#002776" #Background Blue
+    end
+  end
+  describe "extract top-left-most pixel color" do
+    it "returns a hex value for the background" do
+    	flag = ImageSorcery.send(new_instance_method, "./spec/fixtures/flag.png") 
+	flag.base_color.should eq "#e00034" #Stripe Red
     end
   end
 end
